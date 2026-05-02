@@ -1,0 +1,25 @@
+services:
+  postgres:
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+
+  redis:
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+
+  minio:
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+
+  otel-collector:
+    image: otelcol/opentelemetry-collector-contrib:latest
+    volumes:
+      - ./infra/otel/collector.yml:/etc/otel/config.yaml
+    command: ["--config", "/etc/otel/config.yaml"]
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+    networks:
+      - polymath

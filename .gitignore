@@ -1,0 +1,84 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+.env
+.env.local
+.env.*.local
+!.env.example
+dist/
+build/
+*.egg-info/
+.eggs/
+*.egg
+.installed.cfg
+pip-log.txt
+pip-delete-this-directory.txt
+
+# uv
+.uv/
+uv.lock
+
+# Type checking / linting
+.mypy_cache/
+.ruff_cache/
+.dmypy.json
+dmypy.json
+
+# Testing
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+.tox/
+nosetests.xml
+coverage/
+
+# Node / frontend
+node_modules/
+.next/
+.nuxt/
+.pnpm-store/
+*.tsbuildinfo
+dist/
+.output/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Docker
+.docker/
+
+# Secrets / certs
+*.pem
+*.key
+*.cert
+*.crt
+secrets/
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V7
+.Trashes
+ehthumbs.db
+
+# Alembic
+alembic/versions/*.py
+!alembic/versions/.gitkeep

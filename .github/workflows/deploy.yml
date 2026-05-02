@@ -1,0 +1,76 @@
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+
+jobs:
+  deploy:
+    name: Build & Push Images → Coolify
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - gateway
+          - llm-gateway
+          - notes-svc
+          - habits-svc
+          - content-svc
+          - analytics-svc
+          - games-svc
+          - jobs-svc
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check Dockerfile exists
+        id: check
+        run: |
+          if [ -f "apps/${{ matrix.service }}/Dockerfile" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Log in to GHCR
+        if: steps.check.outputs.exists == 'true'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        if: steps.check.outputs.exists == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: apps/${{ matrix.service }}
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}/${{ matrix.service }}:${{ github.sha }}
+            ghcr.io/${{ github.repository }}/${{ matrix.service }}:latest
+
+      - name: Notify Coolify
+        if: steps.check.outputs.exists == 'true'
+        env:
+          SVC_UPPER: ${{ matrix.service }}
+        run: |
+          WEBHOOK_VAR="COOLIFY_WEBHOOK_$(echo "$SVC_UPPER" | tr '[:lower:]-' '[:upper:]_')"
+          WEBHOOK_URL="${!WEBHOOK_VAR}"
+          if [ -n "$WEBHOOK_URL" ]; then
+            curl -s -X POST "$WEBHOOK_URL" || echo "Coolify webhook failed (non-fatal)"
+          else
+            echo "No Coolify webhook configured for ${{ matrix.service }}"
+          fi
+        env:
+          COOLIFY_WEBHOOK_GATEWAY: ${{ secrets.COOLIFY_WEBHOOK_GATEWAY }}
+          COOLIFY_WEBHOOK_LLM_GATEWAY: ${{ secrets.COOLIFY_WEBHOOK_LLM_GATEWAY }}
+          COOLIFY_WEBHOOK_NOTES_SVC: ${{ secrets.COOLIFY_WEBHOOK_NOTES_SVC }}
+          COOLIFY_WEBHOOK_HABITS_SVC: ${{ secrets.COOLIFY_WEBHOOK_HABITS_SVC }}
+          COOLIFY_WEBHOOK_CONTENT_SVC: ${{ secrets.COOLIFY_WEBHOOK_CONTENT_SVC }}
+          COOLIFY_WEBHOOK_ANALYTICS_SVC: ${{ secrets.COOLIFY_WEBHOOK_ANALYTICS_SVC }}
+          COOLIFY_WEBHOOK_GAMES_SVC: ${{ secrets.COOLIFY_WEBHOOK_GAMES_SVC }}
+          COOLIFY_WEBHOOK_JOBS_SVC: ${{ secrets.COOLIFY_WEBHOOK_JOBS_SVC }}

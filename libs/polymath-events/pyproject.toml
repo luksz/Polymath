@@ -1,0 +1,14 @@
+[project]
+name = "polymath-events"
+version = "0.1.0"
+description = "Event envelope schema, Redis pub/sub publisher, outbox writer"
+requires-python = ">=3.12"
+dependencies = [
+    "polymath-core",
+    "redis[asyncio]>=5.0",
+    "pydantic>=2.7",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

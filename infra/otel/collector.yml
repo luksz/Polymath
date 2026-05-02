@@ -1,0 +1,37 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch:
+    timeout: 5s
+    send_batch_size: 1000
+
+exporters:
+  logging:
+    verbosity: detailed
+
+  # Grafana Cloud — set GRAFANA_OTLP_ENDPOINT and GRAFANA_OTLP_TOKEN in env
+  otlphttp/grafana:
+    endpoint: ${env:GRAFANA_OTLP_ENDPOINT}
+    headers:
+      authorization: Basic ${env:GRAFANA_OTLP_TOKEN}
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [logging]
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [logging]
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [logging]

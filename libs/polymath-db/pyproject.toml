@@ -1,0 +1,15 @@
+[project]
+name = "polymath-db"
+version = "0.1.0"
+description = "SQLAlchemy async session factory, base models, Alembic helpers"
+requires-python = ">=3.12"
+dependencies = [
+    "polymath-core",
+    "sqlalchemy[asyncio]>=2.0",
+    "asyncpg>=0.29",
+    "alembic>=1.13",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

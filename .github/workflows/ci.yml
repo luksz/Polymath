@@ -1,0 +1,155 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint & Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+
+      - name: Cache uv
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/uv
+          key: ${{ runner.os }}-uv-${{ hashFiles('uv.lock') }}
+          restore-keys: ${{ runner.os }}-uv-
+
+      - name: Install dependencies
+        run: uv sync --all-packages
+
+      - name: Ruff lint
+        run: uv run ruff check .
+
+      - name: Ruff format check
+        run: uv run ruff format --check .
+
+      - name: Mypy
+        run: uv run mypy apps/ libs/ --ignore-missing-imports
+
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+    needs: lint
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: polymath
+          POSTGRES_PASSWORD: polymath
+          POSTGRES_DB: polymath
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+
+      - name: Cache uv
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/uv
+          key: ${{ runner.os }}-uv-${{ hashFiles('uv.lock') }}
+
+      - name: Install dependencies
+        run: uv sync --all-packages
+
+      - name: Run tests
+        run: uv run pytest --tb=short -q
+        env:
+          DATABASE_URL: postgresql+asyncpg://polymath:polymath@localhost:5432/polymath
+          REDIS_URL: redis://localhost:6379/0
+          ENVIRONMENT: test
+
+  build-images:
+    name: Build Docker Images
+    runs-on: ubuntu-latest
+    needs: test
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - gateway
+          - llm-gateway
+          - notes-svc
+          - habits-svc
+          - content-svc
+          - analytics-svc
+          - games-svc
+          - jobs-svc
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check Dockerfile exists
+        id: check
+        run: |
+          if [ -f "apps/${{ matrix.service }}/Dockerfile" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build image
+        if: steps.check.outputs.exists == 'true'
+        run: docker build -f apps/${{ matrix.service }}/Dockerfile apps/${{ matrix.service }}
+
+  frontend:
+    name: Frontend Build
+    runs-on: ubuntu-latest
+    if: ${{ hashFiles('apps/web/package.json') != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Enable corepack (pnpm)
+        run: corepack enable
+
+      - name: Cache pnpm
+        uses: actions/cache@v4
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('apps/web/pnpm-lock.yaml') }}
+
+      - name: Install frontend deps
+        run: cd apps/web && pnpm install
+
+      - name: Build
+        run: cd apps/web && pnpm build
