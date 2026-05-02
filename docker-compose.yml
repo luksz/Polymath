@@ -65,6 +65,53 @@ services:
     networks:
       - polymath
 
+  llm-gateway:
+    build:
+      context: .
+      dockerfile: apps/llm-gateway/Dockerfile
+    ports:
+      - "8001:8001"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://llm_svc:llm_svc_secret@postgres:5432/polymath
+      REDIS_URL: redis://redis:6379/0
+      SERVICE_NAME: llm-gateway
+      ENVIRONMENT: development
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - polymath
+
+  gateway:
+    build:
+      context: .
+      dockerfile: apps/gateway/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      SERVICE_NAME: gateway
+      ENVIRONMENT: development
+      LLM_GATEWAY_URL: http://llm-gateway:8001
+    depends_on:
+      - llm-gateway
+    networks:
+      - polymath
+
+  web:
+    build:
+      context: apps/web
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_GATEWAY_URL: http://localhost:8000
+    depends_on:
+      - gateway
+    networks:
+      - polymath
+
 volumes:
   pg_data:
   redis_data:
