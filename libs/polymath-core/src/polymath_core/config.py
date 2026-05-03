@@ -14,9 +14,9 @@ class Settings(BaseSettings):
     service_name: str = Field(default="polymath-service")
 
     database_url: str = Field(
-        default="postgresql+asyncpg://polymath:polymath@localhost:5433/polymath"
+        default="postgresql+asyncpg://polymath:polymath@localhost:5434/polymath"
     )
-    redis_url: str = Field(default="redis://localhost:6379/0")
+    redis_url: str = Field(default="redis://localhost:6380/0")
 
     otel_exporter_otlp_endpoint: str = Field(default="http://localhost:4317")
     sentry_dsn: str = Field(default="")
