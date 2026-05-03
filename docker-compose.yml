@@ -84,6 +84,44 @@ services:
     networks:
       - polymath
 
+  notes-svc:
+    build:
+      context: .
+      dockerfile: apps/notes-svc/Dockerfile
+    ports:
+      - "8002:8002"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://notes_svc:notes_svc_secret@postgres:5432/polymath
+      REDIS_URL: redis://redis:6379/0
+      SERVICE_NAME: notes-svc
+      ENVIRONMENT: development
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - polymath
+
+  habits-svc:
+    build:
+      context: .
+      dockerfile: apps/habits-svc/Dockerfile
+    ports:
+      - "8003:8003"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://habits_svc:habits_svc_secret@postgres:5432/polymath
+      REDIS_URL: redis://redis:6379/0
+      SERVICE_NAME: habits-svc
+      ENVIRONMENT: development
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - polymath
+
   gateway:
     build:
       context: .

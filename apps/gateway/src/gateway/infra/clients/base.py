@@ -32,6 +32,17 @@ class ServiceClient:
             resp = await client.post(path, headers=self._headers(user_id), **kwargs)
             return self._handle(resp)
 
+    async def put(self, path: str, user_id: str | None = None, **kwargs) -> dict:
+        async with httpx.AsyncClient(base_url=self._base_url, timeout=self._timeout) as client:
+            resp = await client.put(path, headers=self._headers(user_id), **kwargs)
+            return self._handle(resp)
+
+    async def delete(self, path: str, user_id: str | None = None, **kwargs) -> None:
+        async with httpx.AsyncClient(base_url=self._base_url, timeout=self._timeout) as client:
+            resp = await client.delete(path, headers=self._headers(user_id), **kwargs)
+            if resp.status_code >= 400:
+                raise PolymathError(f"Upstream error {resp.status_code}: {resp.text[:200]}")
+
     def _handle(self, resp: httpx.Response) -> dict:
         if resp.status_code == 404:
             raise NotFoundError(resp.text)
