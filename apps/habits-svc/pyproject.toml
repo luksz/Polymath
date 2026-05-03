@@ -1,0 +1,21 @@
+[project]
+name = "habits-svc"
+version = "0.1.0"
+description = "Polymath habits service — habits, daily check-ins, streaks"
+requires-python = ">=3.12"
+dependencies = [
+    "polymath-core",
+    "polymath-db",
+    "polymath-events",
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "pydantic-settings>=2.2",
+    "structlog>=24.1",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/habits_svc"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

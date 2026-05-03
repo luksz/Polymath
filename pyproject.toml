@@ -15,6 +15,13 @@ members = [
     "libs/polymath-testing",
 ]
 
+[tool.uv.sources]
+polymath-core = { workspace = true }
+polymath-db = { workspace = true }
+polymath-events = { workspace = true }
+polymath-llm = { workspace = true }
+polymath-testing = { workspace = true }
+
 [tool.ruff]
 target-version = "py312"
 line-length = 100
