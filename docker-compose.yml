@@ -70,7 +70,7 @@ services:
       context: .
       dockerfile: apps/llm-gateway/Dockerfile
     ports:
-      - "8001:8001"
+      - "8011:8001"
     environment:
       DATABASE_URL: postgresql+asyncpg://llm_svc:llm_svc_secret@postgres:5432/polymath
       REDIS_URL: redis://redis:6379/0
@@ -89,7 +89,7 @@ services:
       context: .
       dockerfile: apps/notes-svc/Dockerfile
     ports:
-      - "8002:8002"
+      - "8012:8002"
     environment:
       DATABASE_URL: postgresql+asyncpg://notes_svc:notes_svc_secret@postgres:5432/polymath
       REDIS_URL: redis://redis:6379/0
@@ -108,7 +108,7 @@ services:
       context: .
       dockerfile: apps/habits-svc/Dockerfile
     ports:
-      - "8003:8003"
+      - "8013:8003"
     environment:
       DATABASE_URL: postgresql+asyncpg://habits_svc:habits_svc_secret@postgres:5432/polymath
       REDIS_URL: redis://redis:6379/0
@@ -127,7 +127,7 @@ services:
       context: .
       dockerfile: apps/gateway/Dockerfile
     ports:
-      - "8000:8000"
+      - "8010:8000"
     environment:
       SERVICE_NAME: gateway
       ENVIRONMENT: development
