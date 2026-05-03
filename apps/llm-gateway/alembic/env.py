@@ -11,7 +11,7 @@ if config.config_file_name is not None:
 
 DATABASE_URL = os.environ.get(
     "DATABASE_URL",
-    "postgresql+asyncpg://polymath:polymath@localhost:5432/polymath",
+    "postgresql+asyncpg://polymath:polymath@localhost:5433/polymath",
 )
 
 from llm_gateway.infra.db.models import Base  # noqa: E402
