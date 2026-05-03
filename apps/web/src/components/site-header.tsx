@@ -13,6 +13,9 @@ export function SiteHeader() {
         </Link>
 
         <nav className="flex items-center gap-4">
+          <Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Writing</Link>
+          <Link href="/projects" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Projects</Link>
+          <Link href="/now" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Now</Link>
           <SignedOut>
             <Link
               href="/sign-in"

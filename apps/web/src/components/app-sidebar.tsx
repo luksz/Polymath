@@ -40,6 +40,12 @@ const navGroups: NavGroup[] = [
     ],
   },
   {
+    label: "Content",
+    items: [
+      { label: "Writing", href: "/writing", icon: FileText },
+    ],
+  },
+  {
     label: "Productivity",
     items: [
       { label: "Notes", href: "/notes", icon: StickyNote },

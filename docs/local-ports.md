@@ -12,6 +12,7 @@ All Polymath services use non-default ports to avoid conflicts with other local 
 | gateway      | 8010      | Default 8000 taken by PokerNow      |
 | notes-svc    | 8012      | Default 8002 taken by other project |
 | habits-svc   | 8013      | Default 8003 taken by other project |
+| content-svc  | 8014      | —                                   |
 | web          | 3000      | —                                   |
 
 ## Connection strings (local dev)
@@ -43,6 +44,9 @@ cd apps/notes-svc && uv run uvicorn notes_svc.main:app --reload --port 8012
 cd apps/habits-svc && uv run uvicorn habits_svc.main:app --reload --port 8013
 
 # Terminal 5
+cd apps/content-svc && uv run uvicorn content_svc.main:app --reload --port 8014
+
+# Terminal 6
 cd apps/gateway && uv run uvicorn gateway.main:app --reload --port 8010
 
 # Terminal 6

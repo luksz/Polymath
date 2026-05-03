@@ -122,6 +122,22 @@ services:
     networks:
       - polymath
 
+  content-svc:
+    build:
+      context: .
+      dockerfile: apps/content-svc/Dockerfile
+    ports:
+      - "8014:8004"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://content_svc:content_svc_secret@postgres:5432/polymath
+      SERVICE_NAME: content-svc
+      ENVIRONMENT: development
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - polymath
+
   gateway:
     build:
       context: .

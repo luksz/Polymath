@@ -1,7 +1,7 @@
 [project]
 name = "content-svc"
 version = "0.1.0"
-description = "Polymath content service — blog posts, portfolio, MDX rendering"
+description = "Polymath content service — blog, portfolio, reading log, RSS"
 requires-python = ">=3.12"
 dependencies = [
     "polymath-core",
@@ -11,7 +11,18 @@ dependencies = [
     "uvicorn[standard]>=0.30",
     "pydantic-settings>=2.2",
     "structlog>=24.1",
+    "sqlalchemy[asyncio]>=2.0",
+    "asyncpg>=0.29",
+    "alembic>=1.13",
+    "prometheus-fastapi-instrumentator>=7.0",
+    "opentelemetry-instrumentation-fastapi>=0.45b0",
+    "feedgen>=1.0",
 ]
+
+[tool.uv.sources]
+polymath-core = { workspace = true }
+polymath-db = { workspace = true }
+polymath-events = { workspace = true }
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/content_svc"]
