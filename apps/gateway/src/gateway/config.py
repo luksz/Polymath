@@ -13,6 +13,7 @@ class GatewaySettings(BaseSettings):
     notes_svc_url: str = Field(default="http://localhost:8012")
     habits_svc_url: str = Field(default="http://localhost:8013")
     content_svc_url: str = Field(default="http://localhost:8014")
+    digest_svc_url: str = Field(default="http://localhost:8015")
     content_svc_url: str = Field(default="http://content-svc:8004")
     analytics_svc_url: str = Field(default="http://analytics-svc:8005")
     games_svc_url: str = Field(default="http://games-svc:8006")

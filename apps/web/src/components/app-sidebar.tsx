@@ -12,6 +12,7 @@ import {
   Gamepad2,
   Settings,
   ChevronDown,
+  BookOpen,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -37,6 +38,7 @@ const navGroups: NavGroup[] = [
     items: [
       { label: "Chat", href: "/chat", icon: MessageSquare },
       { label: "Prompts", href: "/prompts", icon: FileText },
+      { label: "Digest", href: "/digest", icon: BookOpen },
     ],
   },
   {

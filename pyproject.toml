@@ -8,6 +8,7 @@ members = [
     "apps/analytics-svc",
     "apps/games-svc",
     "apps/jobs-svc",
+    "apps/digest-svc",
     "libs/polymath-core",
     "libs/polymath-db",
     "libs/polymath-events",

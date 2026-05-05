@@ -138,6 +138,38 @@ services:
     networks:
       - polymath
 
+  digest-svc:
+    build:
+      context: .
+      dockerfile: apps/digest-svc/Dockerfile
+    ports:
+      - "8015:8015"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://polymath:polymath@postgres:5432/polymath
+      SERVICE_NAME: digest-svc
+      ENVIRONMENT: development
+      LLM_GATEWAY_URL: http://llm-gateway:8001
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - polymath
+
+  jobs-svc:
+    build:
+      context: .
+      dockerfile: apps/jobs-svc/Dockerfile
+    ports:
+      - "8018:8018"
+    environment:
+      SERVICE_NAME: jobs-svc
+      ENVIRONMENT: development
+      DIGEST_SVC_URL: http://digest-svc:8015
+    depends_on:
+      - digest-svc
+    networks:
+      - polymath
+
   gateway:
     build:
       context: .

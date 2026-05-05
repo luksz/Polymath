@@ -13,6 +13,8 @@ All Polymath services use non-default ports to avoid conflicts with other local 
 | notes-svc    | 8012      | Default 8002 taken by other project |
 | habits-svc   | 8013      | Default 8003 taken by other project |
 | content-svc  | 8014      | —                                   |
+| digest-svc   | 8015      | —                                   |
+| jobs-svc     | 8018      | APScheduler cron runner             |
 | web          | 3000      | —                                   |
 
 ## Connection strings (local dev)
@@ -47,8 +49,14 @@ cd apps/habits-svc && uv run uvicorn habits_svc.main:app --reload --port 8013
 cd apps/content-svc && uv run uvicorn content_svc.main:app --reload --port 8014
 
 # Terminal 6
+cd apps/digest-svc && uv run uvicorn digest_svc.main:app --reload --port 8015
+
+# Terminal 7
+cd apps/jobs-svc && uv run python -m jobs_svc.main --port 8018
+
+# Terminal 8
 cd apps/gateway && uv run uvicorn gateway.main:app --reload --port 8010
 
-# Terminal 6
+# Terminal 9
 cd apps/web && pnpm dev
 ```
