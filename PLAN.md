@@ -1032,6 +1032,85 @@ Each phase ends with a deployable, useful slice. **Do not skip phases.**
 
 **Definition of done:** Daily puzzle goes live publicly, owner gets first arXiv digest email.
 
+### Phase 4.5 — Daily Research Digest (autonomous agent)
+
+**Goal:** Every morning, the platform automatically finds the best new research papers, condenses each to a 5-minute read, and delivers them to the owner's dashboard. Zero manual effort.
+
+**How it works:**
+1. `jobs-svc` fires a cron job at 07:00 UTC daily.
+2. `digest-svc` fetches the top 20 papers published in the last 24h from arXiv (via API) filtered by configurable topic tags (e.g. AI, ML, systems, biology).
+3. For each paper: downloads abstract + intro, scores relevance (LLM call to llm-gateway), picks the top 5.
+4. For each of the top 5: sends full abstract + intro to llm-gateway, gets back a structured 5-min summary (key insight, why it matters, one-sentence takeaway).
+5. Stores the digest as a `digest` record in `digest-svc` DB. Emits a `digest.created` event via outbox.
+6. Frontend `/digest` page shows today's digest and a calendar of past digests.
+
+**New service: `digest-svc` (port 8015)**
+
+Schema (`digest` schema):
+```sql
+CREATE TABLE digest.digests (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  for_date DATE NOT NULL UNIQUE,
+  topic_tags TEXT[] NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE digest.papers (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  digest_id UUID NOT NULL REFERENCES digest.digests(id) ON DELETE CASCADE,
+  arxiv_id TEXT NOT NULL,
+  title TEXT NOT NULL,
+  authors TEXT[] NOT NULL,
+  abstract TEXT NOT NULL,
+  arxiv_url TEXT NOT NULL,
+  relevance_score INT NOT NULL,        -- 1–10 LLM score
+  summary_headline TEXT NOT NULL,      -- one punchy sentence
+  summary_body TEXT NOT NULL,          -- 5-min condensed read (markdown)
+  key_insight TEXT NOT NULL,           -- single key finding
+  why_it_matters TEXT NOT NULL,        -- relevance to owner's interests
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX ON digest.papers (digest_id);
+```
+
+Endpoints:
+```
+GET /v1/digests              # list past digests (date + paper count)
+GET /v1/digests/today        # today's digest + papers
+GET /v1/digests/{date}       # specific date (YYYY-MM-DD)
+POST /v1/digests/run         # manually trigger a run (for testing)
+GET /v1/digests/{date}/papers/{paper_id}   # single paper detail
+```
+
+**Jobs-svc integration:**
+- Add `DigestJob` cron task: `0 7 * * *` (07:00 UTC daily)
+- Calls `digest-svc POST /v1/digests/run`
+
+**Topic tags** (configurable via env var `DIGEST_TOPICS`):
+```
+cs.AI, cs.LG, cs.CL, cs.CV, stat.ML
+```
+
+**LLM prompt design (in llm-gateway prompt registry):**
+- `digest/relevance-score` — given abstract, score 1-10 for relevance to "software engineer interested in AI/ML, systems, and developer tools"
+- `digest/summarise` — given abstract + intro, return structured JSON: `{headline, body_md, key_insight, why_it_matters}`
+
+**Frontend `/digest` page (authed):**
+- Today's date header with paper count
+- Each paper card: title, authors, arXiv link, relevance score badge, 5-min summary, key insight callout, "why it matters" section
+- Calendar sidebar to browse past digests
+- "Run now" button (calls POST /v1/digests/run via gateway)
+
+**Definition of done:**
+- [ ] `digest-svc` scaffolded with schema, repos, service layer, routes, alembic migration
+- [ ] arXiv fetch + LLM scoring + summarisation pipeline working end-to-end
+- [ ] Cron job in jobs-svc fires daily at 07:00 UTC
+- [ ] `/digest` frontend page shows today's papers with full summaries
+- [ ] Past digests browsable by date
+- [ ] Manual trigger button works from the dashboard
+
+---
+
 ### Phase 7 — Polish & utility tools (Week 8+, ongoing)
 - [ ] Token calculator (public utility)
 - [ ] JSON / regex / base64 / JWT debugger pages (public)

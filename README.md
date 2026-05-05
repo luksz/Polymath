@@ -6,51 +6,79 @@
 ![Python](https://img.shields.io/badge/python-3.12-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-## Overview
+## What is this?
 
-Polymath is a single-domain personal platform: a portfolio and blog on the outside, and AI-powered productivity tools, analytics, games, and a RAG knowledge base on the inside. One domain, multiple focused services, a shared backbone.
+Polymath is a self-hosted personal OS. A portfolio and blog on the outside — AI tools, productivity, and a daily research digest on the inside. One domain, one codebase, owned by you.
+
+## What's built
+
+| Layer | What |
+|---|---|
+| **Public site** | Home, `/blog`, `/projects`, `/now` — visible to anyone |
+| **Notes** | Create, search, and semantically query personal notes (pgvector) |
+| **Habits** | Daily habit tracking with streaks + to-do list |
+| **Writing** | Private MDX editor — write drafts, publish to the public blog |
+| **Daily Digest** | Runs every morning — finds the best new research papers, condenses each to a 5-min read via LLM, delivers to your dashboard |
+| **LLM routing** | All AI calls go through `llm-gateway` — cost tracking, caching, budget caps |
+
+## Services
+
+| Service | Local Port | Description |
+|---|---|---|
+| `gateway` | 8010 | BFF — Clerk auth, routes all frontend traffic |
+| `llm-gateway` | 8011 | LLM routing (Anthropic + OpenAI), cost tracking, Redis cache |
+| `notes-svc` | 8012 | Notes CRUD, full-text search, pgvector semantic search |
+| `habits-svc` | 8013 | Habits, check-ins, streaks, todos |
+| `content-svc` | 8014 | Blog posts, projects, now page, RSS feed |
+| `digest-svc` | 8015 | Daily research paper fetcher + LLM summariser |
+| `analytics-svc` | 8016 | Privacy-respecting page analytics (no cookies) |
+| `games-svc` | 8017 | Daily puzzles, leaderboards |
+| `jobs-svc` | 8018 | Cron scheduler, outbox publisher, background workers |
+| `web` | 3000 | Next.js 15 App Router frontend |
+
+> See [docs/local-ports.md](docs/local-ports.md) for the full port map.
 
 ## Quick start
 
 ```bash
 git clone https://github.com/luksz/polymath
 cd polymath
-make bootstrap   # install deps, start Postgres/Redis/MinIO, copy .env
-make dev         # start all services
+make bootstrap        # install Python + Node deps, copy .env, start infra
+make dev-backend      # start Postgres (5434), Redis (6380), MinIO (9002)
 ```
 
-See PLAN.md for the full architecture spec.
+Then in separate terminals:
+```bash
+cd apps/gateway   && uv run uvicorn gateway.main:app      --reload --port 8010
+cd apps/web       && pnpm dev
+```
 
-## Services
+Full run order in [docs/local-ports.md](docs/local-ports.md).
 
-| Service | Port | Description |
-|---|---|---|
-| gateway | 8000 | BFF API gateway — all frontend traffic goes here |
-| llm-gateway | 8001 | LLM provider routing, prompt registry, cost tracking |
-| notes-svc | 8002 | Notes with wikilinks, FTS, semantic search, RAG |
-| habits-svc | 8003 | Habits, todos, streaks, daily check-ins |
-| content-svc | 8004 | Blog, learning log, reading list, RSS |
-| analytics-svc | 8005 | Privacy-respecting site analytics |
-| games-svc | 8006 | Daily puzzles, leaderboards, multiplayer |
-| jobs-svc | 8007 | Arq workers, cron jobs, outbox publisher |
+## Tech stack
+
+| Concern | Choice |
+|---|---|
+| Backend | Python 3.12, FastAPI, SQLAlchemy 2.0 async, Alembic |
+| Frontend | Next.js 15 App Router, Tailwind CSS, shadcn/ui |
+| Auth | Clerk (managed) |
+| Database | Postgres 16 + pgvector |
+| Cache | Redis 7 |
+| Storage | Cloudflare R2 (MinIO locally) |
+| AI | LiteLLM → Anthropic + OpenAI |
+| Deploy | Docker Compose locally, Coolify on Hetzner in prod |
 
 ## Development
 
 ```bash
-make help         # all available commands
-make test         # run tests
-make lint         # ruff lint
-make typecheck    # mypy
-make check        # lint + typecheck
-make psql         # open psql shell
-make new-service NAME=my-svc   # scaffold a new service
+make help                        # all commands
+make test                        # run all tests
+make lint                        # ruff check
+make typecheck                   # mypy
+make check                       # lint + typecheck
+make migrate SVC=notes-svc       # run alembic upgrade head for a service
+make new-service NAME=my-svc     # scaffold a new service
 ```
-
-## Contributing
-
-- Conventional Commits: `feat(notes): add semantic search`
-- One concern per PR, squash merge
-- See PLAN.md §15 for the Definition of Done
 
 ## License
 
