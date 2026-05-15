@@ -15,7 +15,7 @@ Full spec: see PLAN.md.
 
 ## Critical rules
 
-1. **Follow §11 build order in PLAN.md strictly.** Current phase: **Phase 0**. Do not work on Phase 1 features until Phase 0 definition of done is met.
+1. **Follow §11 build order in PLAN.md strictly.** Phases 0, 1, 3, 4.5 are done; Phases 2, 4, 5 are partial. See "Current phase" below for the live picture.
 2. **Every service follows the template in §6 of PLAN.md.** Use `make new-service NAME=foo` to scaffold.
 3. **ADRs in `docs/adr/` are binding.** If a decision seems wrong, write a draft ADR and surface it before deviating.
 4. **Every function must have a test.** Coverage gate: 70% for services, 90% for shared libs.
@@ -28,13 +28,23 @@ Full spec: see PLAN.md.
 
 ## Current phase
 
-**Phase 0 — Repo & local dev**
+**Phases 0, 1, 3, 4.5 — DONE.** Phases 2, 4, 5 — partial. Phase 6+ — not started.
 
-Definition of done:
-- `make bootstrap && make dev` starts Postgres, Redis, MinIO
-- `make test` passes (framework is working, even if no tests yet)
+Done:
+- Phase 0: local dev stack (Postgres 5434, Redis 6380, MinIO 9002/9003)
+- Phase 1: gateway, web skeleton, Clerk auth, dashboard (OTel + Coolify deploy still pending)
+- Phase 2 (backend only): llm-gateway with LiteLLM, cost tracking, prompt registry, Redis cache
+- Phase 3: content-svc + public blog/projects/now
+- Phase 4 (CRUD only): notes-svc + habits-svc + their frontend pages
+- Phase 4.5: digest-svc + jobs-svc + `/digest` page (daily cron at 07:00 UTC)
 
-Next: Phase 1 — Foundation services (polymath-core, polymath-db, polymath-events, gateway skeleton, web skeleton, OTel).
+Not done:
+- Root `.env` with `ANTHROPIC_API_KEY` (blocker for any LLM-backed feature actually running)
+- `/chat` and `/prompts` frontend pages (sidebar links 404)
+- Notes RAG (embeddings + retrieval)
+- Analytics + Games (services are empty stubs, no frontend)
+- OTel/Grafana, Coolify deploy, `polymath.dev` domain
+- Tests + ADRs largely absent
 
 ## Dev workflow
 

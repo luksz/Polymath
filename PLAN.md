@@ -955,70 +955,72 @@ app/
 
 Each phase ends with a deployable, useful slice. **Do not skip phases.**
 
-### Phase 0 — Repo & local dev (Days 1–2)
-- [ ] `git init`, monorepo skeleton, MIT or unlicense.
-- [ ] `pyproject.toml` workspace, `uv` install.
-- [ ] `pnpm` workspace for `apps/web`.
-- [ ] Pre-commit: ruff, mypy, gitleaks, prettier.
-- [ ] `Makefile`: `bootstrap`, `dev`, `test`, `lint`, `format`, `typecheck`, `clean`.
-- [ ] `docker-compose.yml`: postgres, redis, minio (R2-equivalent locally).
-- [ ] `scripts/bootstrap.sh`: pulls deps, starts compose, runs migrations, seeds data.
-- [ ] CI skeleton (`.github/workflows/ci.yml`): lint + type + test on PR.
+### Phase 0 — Repo & local dev (Days 1–2) ✅ DONE
+- [x] `git init`, monorepo skeleton, MIT or unlicense.
+- [x] `pyproject.toml` workspace, `uv` install.
+- [x] `pnpm` workspace for `apps/web`.
+- [x] Pre-commit: ruff, mypy, gitleaks, prettier.
+- [x] `Makefile`: `bootstrap`, `dev`, `test`, `lint`, `format`, `typecheck`, `clean`.
+- [x] `docker-compose.yml`: postgres, redis, minio (R2-equivalent locally).
+- [x] `scripts/bootstrap.sh`: pulls deps, starts compose, runs migrations, seeds data.
+- [x] CI skeleton (`.github/workflows/ci.yml`): lint + type + test on PR.
 
 **Definition of done:** `make bootstrap && make dev` brings up Postgres, Redis, MinIO. `make test` passes (no tests yet, just the framework).
 
-### Phase 1 — Foundation services (Week 1)
-- [ ] `libs/polymath-core`: settings (Pydantic Settings), logging (structlog), problem+json errors, request ID.
-- [ ] `libs/polymath-db`: SQLAlchemy async session factory, base model, `updated_at` trigger, Alembic helpers.
-- [ ] `libs/polymath-events`: Redis pubsub wrapper, outbox writer, JSON Schema validators.
-- [ ] `apps/gateway`: FastAPI skeleton, Clerk JWT middleware, `/healthz`, `/readyz`, `/version`, `/metrics`.
-- [ ] `apps/web`: Next.js skeleton, Clerk integration, public home page, authed `/dashboard` placeholder.
+### Phase 1 — Foundation services (Week 1) ✅ DONE (local)
+- [x] `libs/polymath-core`: settings (Pydantic Settings), logging (structlog), problem+json errors, request ID.
+- [x] `libs/polymath-db`: SQLAlchemy async session factory, base model, `updated_at` trigger, Alembic helpers.
+- [x] `libs/polymath-events`: Redis pubsub wrapper, outbox writer, JSON Schema validators.
+- [x] `apps/gateway`: FastAPI skeleton, Clerk JWT middleware, `/healthz`, `/readyz`, `/version`, `/metrics`.
+- [x] `apps/web`: Next.js skeleton, Clerk integration, public home page, authed `/dashboard` placeholder.
 - [ ] OpenTelemetry SDK wired in core lib; collector running locally.
 - [ ] First ADR: `0001-monorepo.md`.
 - [ ] First deploy: Coolify on Hetzner, `polymath.dev` resolves, Cloudflare in front, Clerk auth works end-to-end.
 
 **Definition of done:** Owner can sign up via Clerk, see authed dashboard, public home page is live at the real domain.
 
-### Phase 2 — LLM gateway + prompt lab (Week 2)
-- [ ] `apps/llm-gateway`: full schema in §8.2.
-- [ ] LiteLLM integration with at least Anthropic + OpenAI configured.
-- [ ] `/v1/complete`, `/v1/complete/by-prompt`, `/v1/embed` (non-streaming first).
+### Phase 2 — LLM gateway + prompt lab (Week 2) 🟡 PARTIAL — backend done, frontend pending
+- [x] `apps/llm-gateway`: full schema in §8.2.
+- [x] LiteLLM integration with at least Anthropic + OpenAI configured.
+- [x] `/v1/complete`, `/v1/complete/by-prompt`, `/v1/embed` (non-streaming first).
 - [ ] Streaming via SSE.
-- [ ] Exact-match Redis cache.
-- [ ] Cost tracking + per-user budget enforcement.
-- [ ] Prompt CRUD + immutable versions.
+- [x] Exact-match Redis cache.
+- [x] Cost tracking + per-user budget enforcement.
+- [x] Prompt CRUD + immutable versions.
 - [ ] Frontend: `/prompts` page — list, edit, version, run with variables, see history of runs.
 - [ ] Frontend: `/chat` page — multi-model dropdown, streaming UI, conversation export.
 
 **Definition of done:** Owner can write a prompt, run it across two models side-by-side, see token costs, and have a working chat UI they'd actually use over claude.ai for some workflows (e.g., tools that hit their own data later).
 
-### Phase 3 — Content service + public site (Week 3)
-- [ ] `apps/content-svc`: full schema in §9.3.
-- [ ] MDX support in frontend with custom components: callouts, code blocks (with copy), images with captions.
-- [ ] Blog list, post page, RSS, JSON Feed, sitemap.
-- [ ] `/now` page reading from a `posts` row of kind=`page`, slug=`now`.
+### Phase 3 — Content service + public site (Week 3) ✅ DONE
+- [x] `apps/content-svc`: full schema in §9.3.
+- [x] MDX support in frontend with custom components: callouts, code blocks (with copy), images with captions.
+- [x] Blog list, post page, RSS, JSON Feed, sitemap.
+- [x] `/now` page reading from a `posts` row of kind=`page`, slug=`now`.
 - [ ] Reading log: list public, write authed.
 - [ ] Author the first 2 posts: "Why I built Polymath" and "The architecture".
 
 **Definition of done:** Public blog is live, RSS validates, sitemap submitted to Google Search Console.
 
-### Phase 4 — Notes + RAG (Week 4–5)
-- [ ] `apps/notes-svc`: full schema in §9.1.
-- [ ] CRUD endpoints, FTS search, `[[wikilinks]]` parsing.
+### Phase 4 — Notes + RAG (Week 4–5) 🟡 PARTIAL — CRUD done, RAG pipeline pending
+- [x] `apps/notes-svc`: full schema in §9.1.
+- [x] CRUD endpoints, FTS search, `[[wikilinks]]` parsing.
 - [ ] Embeddings pipeline triggered by outbox event.
 - [ ] Hybrid search (FTS + cosine + reciprocal rank fusion).
 - [ ] Document ingestion: PDF (`pypdf`), web (`trafilatura`), arXiv (paper ID → metadata + text).
 - [ ] RAG endpoint: retrieve top-k → llm-gateway with a registered prompt → cited answer.
-- [ ] Frontend: notes editor (use `tiptap` or just a markdown textarea + preview), backlinks panel, command palette integration.
+- [x] Frontend: notes editor (markdown textarea + preview), backlinks panel.
 - [ ] Frontend: `/rag` page — drop a file or URL, ask questions, see cited chunks.
 
 **Definition of done:** Owner has dropped 20 documents (papers, articles), can ask "what did I read about MoE routing last month" and get a cited answer.
 
-### Phase 5 — Habits, todos, analytics (Week 6)
-- [ ] `apps/habits-svc`: full schema in §9.2, streaks materialized view.
+### Phase 5 — Habits, todos, analytics (Week 6) 🟡 PARTIAL — habits done, analytics pending
+- [x] `apps/habits-svc`: full schema in §9.2, streaks materialized view.
 - [ ] `apps/analytics-svc`: full schema in §9.4, beacon endpoint.
-- [ ] `apps/jobs-svc`: Arq + APScheduler skeleton, outbox publisher, hourly rollups, nightly streak refresh, Postgres backup to R2.
-- [ ] Frontend: `/habits` — list, today's check-ins, year heatmap. `/todos` — Kanban or list, NL input via llm-gateway. `/dashboard` — habits, streak, LLM spend, GitHub commits (via GH API, cached), reading log highlights.
+- [x] `apps/jobs-svc`: APScheduler skeleton (digest cron live). Outbox publisher, hourly rollups, nightly streak refresh, R2 backups still pending.
+- [x] Frontend: `/habits` — list, today's check-ins, year heatmap.
+- [ ] Frontend: `/todos` — Kanban or list, NL input via llm-gateway.
+- [ ] Frontend: `/dashboard` — habits, streak, LLM spend, GitHub commits (via GH API, cached), reading log highlights.
 - [ ] Frontend beacon firing pageviews; `/analytics` page shows last 7/30 days.
 
 **Definition of done:** Owner has logged 1 week of habits, dashboard reflects activity, analytics shows real traffic.
@@ -1032,7 +1034,7 @@ Each phase ends with a deployable, useful slice. **Do not skip phases.**
 
 **Definition of done:** Daily puzzle goes live publicly, owner gets first arXiv digest email.
 
-### Phase 4.5 — Daily Research Digest (autonomous agent)
+### Phase 4.5 — Daily Research Digest (autonomous agent) ✅ DONE
 
 **Goal:** Every morning, the platform automatically finds the best new research papers, condenses each to a 5-minute read, and delivers them to the owner's dashboard. Zero manual effort.
 

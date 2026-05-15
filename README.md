@@ -12,14 +12,18 @@ Polymath is a self-hosted personal OS. A portfolio and blog on the outside — A
 
 ## What's built
 
-| Layer | What |
-|---|---|
-| **Public site** | Home, `/blog`, `/projects`, `/now` — visible to anyone |
-| **Notes** | Create, search, and semantically query personal notes (pgvector) |
-| **Habits** | Daily habit tracking with streaks + to-do list |
-| **Writing** | Private MDX editor — write drafts, publish to the public blog |
-| **Daily Digest** | Runs every morning — finds the best new research papers, condenses each to a 5-min read via LLM, delivers to your dashboard |
-| **LLM routing** | All AI calls go through `llm-gateway` — cost tracking, caching, budget caps |
+| Layer | Status | What |
+|---|---|---|
+| **Public site** | ✅ shipped | Home, `/blog`, `/projects`, `/now` |
+| **Notes** | ✅ CRUD + FTS | Create, edit, search personal notes (semantic search via pgvector pending) |
+| **Habits** | ✅ shipped | Daily habit tracking with streaks + to-do list |
+| **Writing** | ✅ shipped | Private MDX editor — drafts → publish to public blog |
+| **Daily Digest** | ✅ shipped | Runs every morning at 07:00 UTC, finds top arXiv papers, LLM-condenses each to a 5-min read |
+| **LLM routing** | ✅ shipped | All AI calls flow through `llm-gateway` — cost tracking, caching, budget caps |
+| **Chat / Prompts UI** | 🚧 backend only | `/chat` + `/prompts` frontend pages not built yet |
+| **Analytics** | 🚧 stub | `analytics-svc` scaffolded, no pipeline yet |
+| **Games** | 🚧 stub | `games-svc` scaffolded, no puzzles yet |
+| **Notes RAG** | 🚧 pending | Embedding + retrieval pipeline not wired |
 
 ## Services
 
@@ -45,6 +49,13 @@ git clone https://github.com/luksz/polymath
 cd polymath
 make bootstrap        # install Python + Node deps, copy .env, start infra
 make dev-backend      # start Postgres (5434), Redis (6380), MinIO (9002)
+```
+
+Create a root `.env` before running anything that calls the LLM:
+
+```
+ANTHROPIC_API_KEY=sk-ant-...
+OPENAI_API_KEY=sk-...          # optional
 ```
 
 Then in separate terminals:
